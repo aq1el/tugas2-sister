@@ -1,0 +1,317 @@
+openapi: 3.0.0
+info:
+  title: Distributed Synchronization System API
+  version: 1.0.0
+  description: REST API for distributed lock, queue, and cache operations
+
+servers:
+  - url: http://localhost:8001
+    description: Node 1
+  - url: http://localhost:8002
+    description: Node 2
+  - url: http://localhost:8003
+    description: Node 3
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: Node is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  node_id:
+                    type: string
+                    example: node1
+
+  /status:
+    get:
+      summary: Get system status
+      responses:
+        '200':
+          description: System status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  node_id:
+                    type: string
+                  port:
+                    type: integer
+                  raft_state:
+                    type: object
+                  failed_nodes:
+                    type: array
+                    items:
+                      type: string
+
+  /metrics:
+    get:
+      summary: Get Prometheus metrics
+      responses:
+        '200':
+          description: Metrics in Prometheus format
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /lock/acquire:
+    post:
+      summary: Acquire a distributed lock
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - resource_id
+                - requester_id
+              properties:
+                resource_id:
+                  type: string
+                  example: "db_table_1"
+                requester_id:
+                  type: string
+                  example: "client_123"
+                exclusive:
+                  type: boolean
+                  default: true
+      responses:
+        '200':
+          description: Lock acquisition result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  resource_id:
+                    type: string
+                  lock_type:
+                    type: string
+
+  /lock/release:
+    post:
+      summary: Release a distributed lock
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - resource_id
+                - holder_id
+              properties:
+                resource_id:
+                  type: string
+                holder_id:
+                  type: string
+      responses:
+        '200':
+          description: Lock release result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+
+  /lock/status:
+    get:
+      summary: Get lock manager status
+      responses:
+        '200':
+          description: Current locks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  active_locks:
+                    type: integer
+                  pending_requests:
+                    type: integer
+                  locks:
+                    type: object
+
+  /queue/enqueue:
+    post:
+      summary: Enqueue a message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - msg_id
+                - data
+              properties:
+                msg_id:
+                  type: string
+                data:
+                  type: object
+                priority:
+                  type: integer
+                  default: 0
+      responses:
+        '200':
+          description: Enqueue result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  msg_id:
+                    type: string
+
+  /queue/dequeue:
+    get:
+      summary: Dequeue a message
+      parameters:
+        - in: query
+          name: consumer_id
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Dequeued message
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: object
+                    properties:
+                      msg_id:
+                        type: string
+                      data:
+                        type: object
+                      priority:
+                        type: integer
+
+  /queue/ack:
+    post:
+      summary: Acknowledge message processing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - msg_id
+              properties:
+                msg_id:
+                  type: string
+      responses:
+        '200':
+          description: Acknowledgment result
+
+  /queue/status:
+    get:
+      summary: Get queue status
+      responses:
+        '200':
+          description: Queue statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  queue_size:
+                    type: integer
+                  in_flight:
+                    type: integer
+                  total_enqueued:
+                    type: integer
+                  total_dequeued:
+                    type: integer
+
+  /cache/get:
+    get:
+      summary: Get value from cache
+      parameters:
+        - in: query
+          name: key
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Cache value
+        '404':
+          description: Key not found
+
+  /cache/put:
+    post:
+      summary: Put value in cache
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - key
+                - value
+              properties:
+                key:
+                  type: string
+                value:
+                  type: string
+      responses:
+        '200':
+          description: Success
+
+  /cache/delete:
+    delete:
+      summary: Delete key from cache
+      parameters:
+        - in: query
+          name: key
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Success
+
+  /cache/stats:
+    get:
+      summary: Get cache statistics
+      responses:
+        '200':
+          description: Cache stats
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cache_size:
+                    type: integer
+                  hits:
+                    type: integer
+                  misses:
+                    type: integer
+                  hit_rate:
+                    type: number
