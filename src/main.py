@@ -1,6 +1,7 @@
 import asyncio
-import logging
+import logging  
 import signal
+import sys
 from aiohttp import web
 
 from src.nodes.lock_manager import DistributedLockManager, LockType
@@ -285,14 +286,15 @@ async def main():
     def signal_handler():
         asyncio.create_task(system.stop())
     
+# Setup signal handlers (Windows compatible)
+if sys.platform != 'win32':
     for sig in (signal.SIGTERM, signal.SIGINT):
         loop.add_signal_handler(sig, signal_handler)
-    
-    try:
-        await system.start()
-    except KeyboardInterrupt:
-        await system.stop()
-
+else:
+    # Windows: use signal.signal instead
+    import signal as sig_module
+    sig_module.signal(sig_module.SIGTERM, lambda s, f: signal_handler())
+    sig_module.signal(sig_module.SIGINT, lambda s, f: signal_handler())
 
 if __name__ == '__main__':
     asyncio.run(main())
