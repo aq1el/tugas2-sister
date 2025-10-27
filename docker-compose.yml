@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - distributed-net
+
+  node1:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    environment:
+      - NODE_ID=node1
+      - NODE_PORT=8001
+      - REDIS_HOST=redis
+    ports:
+      - "8001:8001"
+    depends_on:
+      - redis
+    networks:
+      - distributed-net
+
+  node2:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    environment:
+      - NODE_ID=node2
+      - NODE_PORT=8002
+      - REDIS_HOST=redis
+    ports:
+      - "8002:8002"
+    depends_on:
+      - redis
+    networks:
+      - distributed-net
+
+  node3:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    environment:
+      - NODE_ID=node3
+      - NODE_PORT=8003
+      - REDIS_HOST=redis
+    ports:
+      - "8003:8003"
+    depends_on:
+      - redis
+    networks:
+      - distributed-net
+
+volumes:
+  redis_data:
+
+networks:
+  distributed-net:
+    driver: bridge
