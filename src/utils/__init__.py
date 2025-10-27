@@ -1,1 +1,1 @@
-"""Utility modules"""
+"""Utility modules for the distributed system"""
