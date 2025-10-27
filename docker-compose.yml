@@ -3,10 +3,9 @@ version: '3.8'
 services:
   redis:
     image: redis:7-alpine
+    container_name: tugas2-sister-redis-1
     ports:
       - "6379:6379"
-    volumes:
-      - redis_data:/data
     networks:
       - distributed-net
 
@@ -14,12 +13,15 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
+    container_name: tugas2-sister-node1-1
+    ports:
+      - "9001:8001" 
     environment:
       - NODE_ID=node1
       - NODE_PORT=8001
+      - CLUSTER_NODES=node1:8001,node2:8002,node3:8003
       - REDIS_HOST=redis
-    ports:
-      - "8001:8001"
+      - REDIS_PORT=6379
     depends_on:
       - redis
     networks:
@@ -29,12 +31,15 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
+    container_name: tugas2-sister-node2-1
+    ports:
+      - "9002:8002" 
     environment:
       - NODE_ID=node2
       - NODE_PORT=8002
+      - CLUSTER_NODES=node1:8001,node2:8002,node3:8003
       - REDIS_HOST=redis
-    ports:
-      - "8002:8002"
+      - REDIS_PORT=6379
     depends_on:
       - redis
     networks:
@@ -44,19 +49,19 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
+    container_name: tugas2-sister-node3-1
+    ports:
+      - "9003:8003" 
     environment:
       - NODE_ID=node3
       - NODE_PORT=8003
+      - CLUSTER_NODES=node1:8001,node2:8002,node3:8003
       - REDIS_HOST=redis
-    ports:
-      - "8003:8003"
+      - REDIS_PORT=6379
     depends_on:
       - redis
     networks:
       - distributed-net
-
-volumes:
-  redis_data:
 
 networks:
   distributed-net:
