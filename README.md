@@ -1,96 +1,135 @@
 # Distributed Synchronization System
 
-**Tugas 2 - Sistem Parallel dan Terdistribusi**
+Implementasi sistem sinkronisasi terdistribusi untuk Tugas 2 Sistem Parallel dan Terdistribusi.
 
-## Deskripsi
-Implementasi Distributed Synchronization System yang mensimulasikan skenario real-world dari distributed systems dengan kemampuan menangani multiple nodes yang berkomunikasi dan mensinkronisasi data secara konsisten.
+## 🎥 Video Demonstration
 
-## Fitur Utama
+**[Video Walkthrough - YouTube](LINK_WILL_BE_ADDED)**
+
+Video menjelaskan:
+- Architecture & design decisions
+- Implementation details dari 3 komponen utama  
+- Code walkthrough
+- Documentation overview
+
+## 📋 Komponen Utama
 
 ### 1. Distributed Lock Manager
-- Implementasi distributed lock menggunakan algoritma Raft Consensus
-- Support untuk shared dan exclusive locks
-- Deadlock detection untuk distributed environment
-- Network partition handling
+- Raft Consensus Algorithm
+- Deadlock Detection dengan Wait-For Graph
+- Shared & Exclusive Locks
+- Lock Queuing & Fairness
 
-### 2. Distributed Queue System
-- Implementasi menggunakan consistent hashing
-- Support multiple producers dan consumers
-- Message persistence dan recovery
-- At-least-once delivery guarantee
+### 2. Distributed Queue  
+- Consistent Hashing (150 virtual nodes)
+- At-Least-Once Delivery
+- Message Persistence dengan Redis
+- Priority Queue Support
 
-### 3. Distributed Cache Coherence
-- Cache coherence protocol (MESI)
-- Multiple cache nodes support
-- Cache invalidation dan update propagation
-- LRU cache replacement policy
+### 3. Distributed Cache
+- MESI Coherence Protocol
+- Automatic Invalidation Broadcast
+- LRU Eviction Policy
+- Multi-node Consistency
 
-## Prerequisites
+## 🏗️ Architecture
 
-- Python 3.8+
-- Docker & Docker Compose
-- 4GB RAM minimum
+Sistem ini menggunakan:
+- **Consensus:** Raft Algorithm
+- **Communication:** HTTP/JSON RPC
+- **Failure Detection:** Heartbeat mechanism
+- **Storage:** Redis untuk persistence
 
-## Quick Start
+Lihat [Architecture Documentation](docs/architecture.md) untuk detail lengkap.
 
+## 📚 Documentation
+
+- [Architecture Overview](docs/architecture.md) - System design & component interaction
+- [API Specification](docs/api_spec.yml) - OpenAPI format REST API
+- [Deployment Guide](docs/deployment_guide.md) - Production deployment steps
+
+## 🧪 Testing
+
+### Unit & Integration Tests
 ```bash
-# Clone repository
-git clone https://github.com/aq1el/tugas2-sister.git
-cd tugas2-sister
+pytest tests/
+```
 
+### Performance Testing
+```bash
+python tests/performance/load_test.py
+```
+
+**Performance Metrics:**
+- Throughput: 10,000+ ops/sec
+- Latency P95: <10ms
+- Scalability: Up to 10 nodes
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Python 3.11+
+- Docker & Docker Compose
+- Redis
+
+### Running with Docker
+```bash
+docker-compose up -d
+```
+
+### Running Locally
+```bash
 # Install dependencies
 pip install -r requirements.txt
 
-# Setup environment
-cp .env.example .env
-
-# Run with Docker
-docker-compose up -d
-
-# Run tests
-pytest tests/
-
-# Run benchmarks
-python benchmarks/run_benchmarks.py
+# Start nodes
+python -m src.main  # node1
 ```
 
-## Struktur Project
+## 📊 Features
 
-```
-tugas2-sister/
-├── src/                    # Source code
-│   ├── nodes/             # Node implementations
-│   ├── consensus/         # Raft consensus
-│   ├── communication/     # Message passing
-│   └── utils/             # Utilities
-├── tests/                 # Test suites
-├── docker/                # Docker configuration
-├── docs/                  # Documentation
-├── benchmarks/            # Performance tests
-└── scripts/               # Helper scripts
-```
+✅ Distributed consensus dengan Raft  
+✅ Fault tolerance & automatic failover  
+✅ Deadlock detection & resolution  
+✅ Message persistence & delivery guarantee  
+✅ Cache coherence protocol  
+✅ Comprehensive monitoring & metrics  
+✅ Production-ready deployment  
 
-## Documentation
+## 🔧 Tech Stack
 
-- [Architecture](docs/architecture.md)
-- [API Specification](docs/api_spec.yaml)
-- [Deployment Guide](docs/deployment_guide.md)
+- **Language:** Python 3.11
+- **Framework:** aiohttp (async HTTP)
+- **Storage:** Redis
+- **Deployment:** Docker Compose
+- **Testing:** pytest, asyncio
+- **Monitoring:** Prometheus metrics
 
-## Performance
+## 📖 Implementation Details
 
-Sistem ini telah diuji dengan:
-- Throughput: 10,000+ requests/second
-- Latency: <10ms (P95)
-- Scalability: Up to 10 nodes
+### Raft Consensus
+- Leader election dengan randomized timeout
+- Log replication untuk consistency
+- Commit protocol dengan majority quorum
 
-## Video Demonstration
+### Consistent Hashing
+- Virtual nodes untuk load balancing
+- Minimal data movement on node changes
+- Deterministic key routing
 
-[Link Video YouTube akan ditambahkan]
+### MESI Protocol
+- Modified, Exclusive, Shared, Invalid states
+- Write-through invalidation
+- Cache coherence guarantees
 
-## Author
+## 👨‍💻 Author
 
-**aq1el**
+**aq1el** - Sistem Parallel dan Terdistribusi
 
-## License
+## 📄 License
 
-MIT License
+Educational project for distributed systems course.
+
+---
+
+**Repository:** https://github.com/aq1el/tugas2-sister
